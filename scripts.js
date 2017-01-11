@@ -1,20 +1,30 @@
-var activeTab;
+var TabsController = {
+  init: function ($tabList, $tabPanels) {
+    this.$tabList = $tabList;
+    this.$tabPanels = $tabPanels;
+    this.handleClick = $.proxy(this.handleClick, this);
+    this.setActiveTab = $.proxy(this.setActiveTab, this);
+    this.$tabList.find('a').on('click', this.handleClick);
+  },
 
-function displayTab(num){
-  if(activeTab !== undefined){
-        var dormantTabID = document.getElementById('tab'+activeTab);
-        var dormantPanelID = document.getElementById('panel'+activeTab);
-        dormantTabID.className = '';
-        dormantPanelID.className = 'hide';
-        dormantTabID.setAttribute('aria-selected', false);
-      }
-      var activeTabID = document.getElementById('tab'+num);
-      var activePanelID = document.getElementById('panel'+num);
-      activeTabID.className = 'selected';
-      activePanelID.className = 'selected';
-      activeTabID.setAttribute('aria-selected', true);
-      activeTab = num;
+  handleClick: function(event) {
+    event.preventDefault();
+    this.setActiveTab(event.target);
+  },
 
+  setActiveTab: function (target) {
+    var $target = $(target);
+    if ($target.hasClass('selected')) {
+      return;
+    }
+    this.$tabList.find('a.selected').attr('aria-selected', false).removeClass('selected');
+    this.$tabPanels.removeClass('active');
+    $target.addClass('selected').attr('aria-selected', true);
+    this.$tabPanels.filter('#' + $target.attr('aria-controls')).addClass('active');
+  },
+};
 
-}
-window.onload = function () { displayTab(1); }; 
+$(document).ready(function() {
+  TabsController.init($('.tabList'), $('.tabPanels')
+);
+});
